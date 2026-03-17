@@ -63,7 +63,13 @@ def resolve(issue, run_result, verify_result, config, repo_path: str, db_conn, r
         _git(["checkout", "-b", branch], repo_path)
         _git(["add", "-A"], repo_path)
         commit_msg = f"fix: resolve issue #{issue.number}\n\n{issue.title}"
-        _git(["commit", "-m", commit_msg], repo_path)
+        commit_result = _git(["commit", "-m", commit_msg], repo_path)
+        if commit_result.returncode != 0:
+            log.error(f"Nothing to commit for issue #{issue.number}: agent made no file changes")
+            _git(["checkout", "main"], repo_path)
+            _git(["branch", "-D", branch], repo_path)
+            _label_needs_human(issue, "Agent ran but made no file changes. The bug report may need more detail.", "AGENT_FAILED")
+            return finish("needs_human", alert_codes=["AGENT_FAILED"], error_msg="No file changes made by agent")
         push_result = _git(["push", "-u", "origin", branch], repo_path)
 
         if push_result.returncode != 0:
