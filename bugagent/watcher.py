@@ -9,7 +9,7 @@ from bugagent.claim import claim_issue, release_claim, release_stale_claims, Cla
 
 log = logging.getLogger(__name__)
 
-PID_FILE = Path("/tmp/bugagent.pid")
+PID_FILE = Path(os.environ.get("TEMP", "/tmp")) / "bugagent.pid"
 
 
 def _write_pid():

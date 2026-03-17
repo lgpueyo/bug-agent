@@ -1,12 +1,15 @@
 [build-system]
 requires = ["setuptools>=68"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "bugagent"
 version = "1.0.0"
 requires-python = ">=3.11"
 dependencies = ["click>=8", "PyGithub>=2", "pyyaml>=6"]
+
+[tool.setuptools.packages.find]
+include = ["bugagent*"]
 
 [project.scripts]
 bugagent = "bugagent.cli:main"
