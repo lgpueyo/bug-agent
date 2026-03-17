@@ -1,0 +1,32 @@
+# Config with secrets — never commit
+config.yaml
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtualenv
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Pending patches (may contain code)
+logs/pending-prs/

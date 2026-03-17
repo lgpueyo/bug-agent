@@ -1,0 +1,5 @@
+click>=8
+PyGithub>=2
+pyyaml>=6
+pytest>=8
+pytest-mock>=3

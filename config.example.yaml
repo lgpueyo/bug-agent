@@ -1,0 +1,29 @@
+# GitHub Personal Access Token with repo scope — REQUIRED (string)
+github_token: ""
+
+# Target repository in org/repo format — REQUIRED (string)
+repo: "myorg/myrepo"
+
+# GitHub username or bot account to assign during runs — REQUIRED (string)
+bot_username: "my-bot-account"
+
+# Local path to the cloned target repository — REQUIRED (string)
+repo_path: "/path/to/local/repo"
+
+# Shell command to run the test suite — REQUIRED (string)
+test_command: "pytest"
+
+# Minutes before agent subprocess is killed — optional (int, default: 30)
+agent_timeout_minutes: 30
+
+# Seconds between watcher poll cycles — optional (int, default: 300)
+poll_interval_seconds: 300
+
+# Minutes before an in-progress claim is considered stale — optional (int, default: 45)
+claim_timeout_minutes: 45
+
+# Path to SQLite database file — optional (string, default: bugagent.db)
+db_path: "bugagent.db"
+
+# Path to log file — optional (string, default: logs/agent.log)
+log_path: "logs/agent.log"
