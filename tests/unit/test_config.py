@@ -100,3 +100,33 @@ def test_empty_yaml_raises_value_error(tmp_path):
     p.write_text("")
     with pytest.raises(ValueError):
         load_config(str(p))
+
+
+def test_anthropic_api_key_optional(tmp_path):
+    """Config loads fine without anthropic_api_key."""
+    path = write_config(tmp_path, VALID_CONFIG)
+    cfg = load_config(path)
+    assert not getattr(cfg, "anthropic_api_key", None)
+
+
+def test_anthropic_api_key_loaded_when_present(tmp_path):
+    data = {**VALID_CONFIG, "anthropic_api_key": "sk-ant-test123"}
+    path = write_config(tmp_path, data)
+    cfg = load_config(path)
+    assert cfg.anthropic_api_key == "sk-ant-test123"
+
+
+def test_redacted_repr_hides_anthropic_key(tmp_path):
+    data = {**VALID_CONFIG, "anthropic_api_key": "sk-ant-test123"}
+    path = write_config(tmp_path, data)
+    cfg = load_config(path)
+    d = cfg.redacted_repr()
+    assert d["anthropic_api_key"] == "***REDACTED***"
+
+
+def test_redacted_repr_anthropic_key_absent(tmp_path):
+    """redacted_repr works when anthropic_api_key is not set."""
+    path = write_config(tmp_path, VALID_CONFIG)
+    cfg = load_config(path)
+    d = cfg.redacted_repr()
+    assert "anthropic_api_key" not in d or not d.get("anthropic_api_key")

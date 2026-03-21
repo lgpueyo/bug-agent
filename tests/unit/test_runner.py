@@ -225,3 +225,58 @@ def test_check_dirty_repo_returns_false_when_clean():
     mock_result.stdout = ""
     with patch("bugagent.runner.subprocess.run", return_value=mock_result):
         assert _check_dirty_repo("/tmp/repo") is False
+
+
+# ---------------------------------------------------------------------------
+# test_runner_passes_api_key_to_subprocess_env
+# ---------------------------------------------------------------------------
+
+def test_runner_passes_api_key_when_set(tmp_path):
+    issue = make_issue()
+    config = make_config()
+    config.log_path = str(tmp_path / "logs" / "agent.log")
+    config.anthropic_api_key = "sk-ant-perproject123"
+
+    captured_env = {}
+    mock_proc = MagicMock()
+    mock_proc.returncode = 0
+    mock_proc.communicate.return_value = ("Fixed.", None)
+
+    def capture_popen(*args, **kwargs):
+        captured_env.update(kwargs.get("env", {}))
+        return mock_proc
+
+    with patch("bugagent.runner._check_dirty_repo", return_value=False), \
+         patch("bugagent.runner.PROMPT_TEMPLATE_PATH") as mock_tmpl, \
+         patch("bugagent.runner.subprocess.Popen", side_effect=capture_popen):
+        mock_tmpl.read_text.return_value = "prompt {ISSUE_NUMBER} {ISSUE_TITLE} {ISSUE_BODY} {TEST_COMMAND}"
+        run_agent(issue, config, str(tmp_path))
+
+    assert captured_env.get("ANTHROPIC_API_KEY") == "sk-ant-perproject123"
+
+
+def test_runner_omits_api_key_override_when_not_set(tmp_path):
+    """When anthropic_api_key is absent, env inherits from os.environ (no override)."""
+    issue = make_issue()
+    config = make_config()
+    config.log_path = str(tmp_path / "logs" / "agent.log")
+    config.anthropic_api_key = None
+
+    captured_kwargs = {}
+    mock_proc = MagicMock()
+    mock_proc.returncode = 0
+    mock_proc.communicate.return_value = ("Fixed.", None)
+
+    def capture_popen(*args, **kwargs):
+        captured_kwargs.update(kwargs)
+        return mock_proc
+
+    with patch("bugagent.runner._check_dirty_repo", return_value=False), \
+         patch("bugagent.runner.PROMPT_TEMPLATE_PATH") as mock_tmpl, \
+         patch("bugagent.runner.os.environ", {"EXISTING": "value"}), \
+         patch("bugagent.runner.subprocess.Popen", side_effect=capture_popen):
+        mock_tmpl.read_text.return_value = "prompt {ISSUE_NUMBER} {ISSUE_TITLE} {ISSUE_BODY} {TEST_COMMAND}"
+        run_agent(issue, config, str(tmp_path))
+
+    # env is passed but ANTHROPIC_API_KEY was not injected
+    assert "ANTHROPIC_API_KEY" not in captured_kwargs.get("env", {})

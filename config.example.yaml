@@ -27,3 +27,7 @@ db_path: "bugagent.db"
 
 # Path to log file — optional (string, default: logs/agent.log)
 log_path: "logs/agent.log"
+
+# Anthropic API key for this instance — optional (string, default: uses ANTHROPIC_API_KEY env var)
+# Set this to use a dedicated key per project for cost tracking and accounting.
+anthropic_api_key: ""

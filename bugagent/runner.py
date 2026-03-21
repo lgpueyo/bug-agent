@@ -67,6 +67,11 @@ def run_agent(issue, config, repo_path: str, db_conn=None, run_id: int = None) -
         "Fix the bug described in the system prompt.",
     ]
 
+    env = os.environ.copy()
+    api_key = getattr(config, "anthropic_api_key", None)
+    if api_key:
+        env["ANTHROPIC_API_KEY"] = api_key
+
     log.info(f"Spawning Claude Code for issue #{issue.number} (timeout: {config.agent_timeout_minutes} min)")
 
     timed_out = False
@@ -79,6 +84,7 @@ def run_agent(issue, config, repo_path: str, db_conn=None, run_id: int = None) -
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                env=env,
             )
 
             # Heartbeat thread

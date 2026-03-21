@@ -21,6 +21,8 @@ class Config:
         d = {k: v for k, v in self.__dict__.items()}
         if "github_token" in d:
             d["github_token"] = "***REDACTED***"
+        if "anthropic_api_key" in d and d["anthropic_api_key"]:
+            d["anthropic_api_key"] = "***REDACTED***"
         return d
 
 def load_config(path: str = "config.yaml") -> Config:
